@@ -21,7 +21,7 @@ class Server {
     }
     listen() {
         this.httpServer.listen(8080, () => {
-            log_1.log('Server is initializing...');
+            log_1.log('Waiting for connections...');
         });
         this.io.on('connect', (socket) => {
             log_1.log(`Connected client on port ${socket.client.id}`);

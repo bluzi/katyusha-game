@@ -1,3 +1,4 @@
+import { GameComponent } from './../components/game/game.component';
 import { NavigationService } from './../services/navigation.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -20,10 +21,12 @@ import { PlaceholderComponent } from '../components/placeholder/placeholder.comp
     PlaceholderComponent,
     HomeComponent,
     WaitingRoomComponent,
+    GameComponent,
   ],
   entryComponents: [
     HomeComponent,
     WaitingRoomComponent,
+    GameComponent,
   ],
   imports: [
     BrowserModule,

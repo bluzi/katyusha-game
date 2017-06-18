@@ -1,4 +1,3 @@
-import { MemberStateChange } from '../../src/models/member-state-change.model';
 import * as express from 'express';
 import * as http from 'http';
 import * as socketIo from 'socket.io';
@@ -36,7 +35,7 @@ class Server {
 
     private listen(): void {
         this.httpServer.listen(8080, () => {
-           log('Server is initializing...');
+           log('Waiting for connections...');
         });
 
         this.io.on('connect', (socket: SocketIO.Socket) => {

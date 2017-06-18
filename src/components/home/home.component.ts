@@ -11,8 +11,8 @@ import { NavigationService } from '../../services/navigation.service';
 })
 export class HomeComponent {
 
-  private user;
-  private enteredRoomId = '';
+  user;
+  enteredRoomId = '';
 
   constructor(private auth: AuthService, private roomService: RoomService,
     private socketService: SocketService, private navigation: NavigationService) {

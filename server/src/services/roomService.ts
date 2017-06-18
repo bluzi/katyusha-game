@@ -1,7 +1,6 @@
-import { MemberStateChange } from './../../../src/models/member-state-change.model';
-import { Room } from './../../../src/models/room.model';
-import { UserState } from './../enums';
+import { UserState, RoomState } from './../enums';
 import { log } from './../log';
+import { Room } from '../../../src/models/room.model';
 
 export function createRoom(socket: SocketIO.Socket) {
     const currentUser = this.users.find(user => user.clientId === socket.client.id);
@@ -9,12 +8,13 @@ export function createRoom(socket: SocketIO.Socket) {
         leaderId: currentUser.accessToken,
         roomId: this.generateId(),
         members: [currentUser.accessToken],
+        state: RoomState.WaitingForPlayers,
     };
 
     socket.join(room.roomId);
 
     this.rooms.push(room);
-    socket.emit('create-room-response', room);
+    socket.emit('createRoomResponse', room);
     log(`Room created ${room.roomId}`);
 }
 
@@ -25,28 +25,23 @@ export function joinRoom(socket: SocketIO.Socket, roomId: string) {
     if (room) {
         room.members.push(currentUser.accessToken);
         socket.join(room.roomId);
-        const state: MemberStateChange = {
-            user: currentUser.accessToken,
-            state: UserState.Connected,
-            room,
-        };
 
-        socket.in(room.roomId).emit('member-state-changed', state);
+        socket.in(room.roomId).emit('roomChanged', room);
 
-        socket.emit('join-room-response', room);
+        socket.emit('joinRoomResponse', room);
         log(`User joined room ${room.roomId}`);
     } else {
-        socket.emit('join-room-response', undefined);
+        socket.emit('joinRoomResponse', undefined);
         log(`Joining room failed ${roomId}`);
     }
 }
 
 export function getCurrentRoom(socket: SocketIO.Socket) {
     const currentUser = this.users.find(user => user.clientId === socket.client.id);
-    const room = this.rooms.find(r => r.members.indexOf(currentUser.accessToken) > -1);
+    const room: Room = this.rooms.find(r => r.members.indexOf(currentUser.accessToken) > -1);
 
     if (room) {
-        log(`Current room request ${room.roomId}`);
+        log(`Current room request ${room.roomId} (State: ${room.state})`);
         socket.emit('get-current-room-response', room);
     } else {
         log(`Current room request (Not in a room)`);
@@ -68,15 +63,23 @@ export function leaveRoom(socket: SocketIO.Socket) {
             }
 
             if (this.rooms.includes(room)) {
-                const state: MemberStateChange = {
-                    user: currentUser.accessToken,
-                    state: UserState.Disconnected,
-                    room,
-                };
-
-                socket.in(room.roomId).emit('member-state-changed', state);
+                socket.in(room.roomId).emit('roomChanged', room);
             }
         });
 
-    socket.emit('leave-room-response');
+    socket.emit('leaveRoomResponse');
+}
+
+export function startGame(socket: SocketIO.Socket) {
+    const currentUser = this.users.find(user => user.clientId === socket.client.id);
+    const room: Room = this.rooms.find(r => r.leaderId === currentUser.accessToken);
+
+    if (room) {
+        room.state = RoomState.GameStarted;
+        socket.emit('startGameResponse', true);
+        socket.in(room.roomId).emit('roomChanged', room);
+        log(`Starting game in room ${room.roomId}`);
+    } else {
+        socket.emit('startGameResponse', false);
+    }
 }

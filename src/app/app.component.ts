@@ -8,11 +8,10 @@ import { NavigationRequest } from '../services/navigation.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  template: '<app-placeholder [component]="currentPage"></app-placeholder>',
 })
 export class AppComponent implements OnInit {
-  private currentPage: NavigationRequest;
+  currentPage: NavigationRequest;
 
   constructor(private socketService: SocketService, private navigation: NavigationService,
               private roomService: RoomService) { }
@@ -20,7 +19,7 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
     await this.socketService.performHandshake();
 
-    this.navigation.getCurrentPage().subscribe(page => this.currentPage = page);
+    this.navigation.getCurrentPage().subscribe(page => setTimeout(() => this.currentPage = page));
 
     const currentRoom = await this.roomService.getCurrentRoom();
 

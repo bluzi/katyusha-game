@@ -4,19 +4,19 @@ import { Subscriber } from 'rxjs/Subscriber';
 
 @Injectable()
 export class NavigationService {
-    private _currentPage: Observable<NavigationRequest>;
-    private _pageSubscriber: Subscriber<NavigationRequest>;
+    private currentPage: Observable<NavigationRequest>;
+    private pageSubscriber: Subscriber<NavigationRequest>;
 
     constructor() {
-        this._currentPage = new Observable<NavigationRequest>(subscriber => this._pageSubscriber = subscriber);
+        this.currentPage = new Observable<NavigationRequest>(subscriber => this.pageSubscriber = subscriber);
     }
 
     getCurrentPage(): Observable<NavigationRequest> {
-        return this._currentPage;
+        return this.currentPage;
     }
 
     navigateTo(page: Component, args?: any) {
-        this._pageSubscriber.next({
+        this.pageSubscriber.next({
             page,
             args
         });
